@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI - Login/Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        #userInput {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #submitButton {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #response {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            min-height: 50px;
+        }
+        #authForm {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #registerForm, #loginForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Chat with AI</h1>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+        <input type="text" id="loginUsername" placeholder="Username" />
+        <input type="password" id="loginPassword" placeholder="Password" />
+        <button id="loginButton">Login</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm">
+        <input type="text" id="registerUsername" placeholder="Username" />
+        <input type="password" id="registerPassword" placeholder="Password" />
+        <input type="text" id="inviteCode" placeholder="Invite Code" />
+        <button id="registerButton">Register</button>
+    </div>
+
+    <!-- Chat Form (only visible if logged in) -->
+    <div id="authForm">
+        <input type="text" id="userInput" placeholder="Type your message here..." />
+        <button id="submitButton">Send</button>
+    </div>
+
+    <!-- Response Box -->
+    <div id="response"></div>
+
+    <script>
+        const inviteCode = '28888'; // Predefined invite code for registration
+
+        // Check if user is already logged in
+        const isLoggedIn = localStorage.getItem('loggedIn');
+        if (isLoggedIn === 'true') {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authForm').style.display = 'flex';
+        }
+
+        // Register logic
+        document.getElementById('registerButton').addEventListener('click', () => {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const inputInviteCode = document.getElementById('inviteCode').value;
+
+            if (!username || !password || !inputInviteCode) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            if (inputInviteCode !== inviteCode) {
+                alert('Invalid invite code.');
+                return;
+            }
+
+            // Store the user details in localStorage
+            localStorage.setItem('username', username);
+            localStorage.setItem('password', password);
+            alert('Registration successful! You can now log in.');
+        });
+
+        // Login logic
+        document.getElementById('loginButton').addEventListener('click', () => {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const storedUsername = localStorage.getItem('username');
+            const storedPassword = localStorage.getItem('password');
+
+            if (username === storedUsername && password === storedPassword) {
+                localStorage.setItem('loggedIn', 'true');
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('authForm').style.display = 'flex';
+            } else {
+                alert('Invalid username or password.');
+            }
+        });
+
+        // Chat message send logic (only works if logged in)
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const input = document.getElementById('userInput').value;
+
+            if (!input) {
+                alert('Please enter a message.');
+                return;
+            }
+
+            // Check if the user is logged in
+            if (localStorage.getItem('loggedIn') !== 'true') {
+                alert('You are not authorized to send messages.');
+                return;
+            }
+
+            try {
+                const response = await fetch('https://ai.mingowhk.workers.dev/', {
+                    method: 'POST',
+                    body: JSON.stringify({ content: input })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('response').textContent = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('response').textContent = 'AI: ' + data.result;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('response').textContent = 'An error occurred while communicating with the server.';
+            }
+        });
+    </script>
+
+</body>
+</html>
