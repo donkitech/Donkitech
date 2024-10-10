@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "express": "4.21.0",
+    "sqlite3": "^5.1.7"
+  },
+  "name": "donkitech",
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\">Hi 👋, I'm Donki</h1> <h3 align=\"center\">A passionate frontend developer from Hong Kong</h3>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
